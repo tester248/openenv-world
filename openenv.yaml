@@ -1,0 +1,51 @@
+spec_version: 1
+name: open_cache_policy
+type: space
+runtime: fastapi
+app: server.app:app
+port: 8000
+
+description: >
+	OpenCachePolicy is a deterministic RL environment for API cache-policy tuning.
+	Agents assign endpoint TTLs and evictions to optimize latency while respecting
+	freshness SLAs and memory budgets.
+
+observation_space:
+	type: json
+	description: >
+		Endpoint-level runtime metrics, aggregate latency, stale ratio, memory usage,
+		and remaining episode steps.
+
+action_space:
+	type: json
+	description: >
+		Policy updates for endpoint TTL selection from discrete buckets and endpoint
+		eviction requests.
+
+endpoints:
+	health: /
+	reset: /reset
+	step: /step
+	state: /state
+
+tasks:
+	- id: task_easy
+		description: Stable traffic with lenient freshness windows.
+		steps: 6
+	- id: task_medium
+		description: Mixed volatility with memory pressure.
+		steps: 8
+	- id: task_hard
+		description: Bursty traffic and strict freshness for critical endpoints.
+		steps: 10
+
+scoring:
+	reward_range: [0.0, 1.0]
+	success_threshold: 0.6
+	score_formula: mean(step_rewards)
+
+constraints:
+	max_runtime_seconds: 1200
+	max_memory_gb: 8
+	max_vcpu: 2
+

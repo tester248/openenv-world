@@ -1,0 +1,171 @@
+"""Deterministic task fixtures for the Open Cache Policy environment."""
+
+TTL_BUCKETS = [0, 5, 30, 120, 600]
+
+TASKS = {
+    "task_easy": {
+        "description": "Stable traffic with generous freshness windows.",
+        "max_steps": 6,
+        "memory_budget_mb": 140.0,
+        "endpoints": {
+            "search": {
+                "base_rps": 40.0,
+                "miss_penalty_ms": 120.0,
+                "payload_kb": 6.0,
+                "volatility": 0.15,
+                "freshness_sla_seconds": 120,
+            },
+            "catalog": {
+                "base_rps": 25.0,
+                "miss_penalty_ms": 85.0,
+                "payload_kb": 8.0,
+                "volatility": 0.1,
+                "freshness_sla_seconds": 300,
+            },
+            "offers": {
+                "base_rps": 15.0,
+                "miss_penalty_ms": 160.0,
+                "payload_kb": 5.0,
+                "volatility": 0.25,
+                "freshness_sla_seconds": 45,
+            },
+        },
+        "traffic_windows": [
+            {"search": 1.0, "catalog": 1.0, "offers": 1.0},
+            {"search": 1.1, "catalog": 0.95, "offers": 1.05},
+            {"search": 1.0, "catalog": 1.05, "offers": 1.1},
+            {"search": 1.2, "catalog": 1.0, "offers": 0.9},
+            {"search": 0.95, "catalog": 1.1, "offers": 1.0},
+            {"search": 1.05, "catalog": 0.9, "offers": 1.15},
+        ],
+    },
+    "task_medium": {
+        "description": "Mixed volatility with tighter memory budget.",
+        "max_steps": 8,
+        "memory_budget_mb": 220.0,
+        "endpoints": {
+            "search": {
+                "base_rps": 60.0,
+                "miss_penalty_ms": 135.0,
+                "payload_kb": 6.0,
+                "volatility": 0.22,
+                "freshness_sla_seconds": 90,
+            },
+            "catalog": {
+                "base_rps": 45.0,
+                "miss_penalty_ms": 90.0,
+                "payload_kb": 10.0,
+                "volatility": 0.18,
+                "freshness_sla_seconds": 240,
+            },
+            "offers": {
+                "base_rps": 30.0,
+                "miss_penalty_ms": 180.0,
+                "payload_kb": 5.0,
+                "volatility": 0.42,
+                "freshness_sla_seconds": 30,
+            },
+            "inventory": {
+                "base_rps": 35.0,
+                "miss_penalty_ms": 150.0,
+                "payload_kb": 7.0,
+                "volatility": 0.45,
+                "freshness_sla_seconds": 20,
+            },
+            "pricing": {
+                "base_rps": 18.0,
+                "miss_penalty_ms": 170.0,
+                "payload_kb": 4.0,
+                "volatility": 0.5,
+                "freshness_sla_seconds": 25,
+            },
+            "reviews": {
+                "base_rps": 14.0,
+                "miss_penalty_ms": 110.0,
+                "payload_kb": 12.0,
+                "volatility": 0.2,
+                "freshness_sla_seconds": 600,
+            },
+        },
+        "traffic_windows": [
+            {"search": 1.0, "catalog": 1.0, "offers": 1.0, "inventory": 1.0, "pricing": 1.0, "reviews": 1.0},
+            {"search": 1.15, "catalog": 1.05, "offers": 1.2, "inventory": 1.15, "pricing": 1.0, "reviews": 0.95},
+            {"search": 1.25, "catalog": 1.1, "offers": 1.35, "inventory": 1.2, "pricing": 1.1, "reviews": 1.0},
+            {"search": 1.05, "catalog": 0.95, "offers": 0.9, "inventory": 1.0, "pricing": 0.9, "reviews": 1.05},
+            {"search": 0.9, "catalog": 1.0, "offers": 0.85, "inventory": 0.95, "pricing": 1.05, "reviews": 1.1},
+            {"search": 1.3, "catalog": 1.05, "offers": 1.4, "inventory": 1.35, "pricing": 1.2, "reviews": 0.9},
+            {"search": 1.1, "catalog": 1.0, "offers": 1.1, "inventory": 1.0, "pricing": 1.15, "reviews": 1.0},
+            {"search": 0.95, "catalog": 0.9, "offers": 1.0, "inventory": 0.9, "pricing": 0.95, "reviews": 1.1},
+        ],
+    },
+    "task_hard": {
+        "description": "Bursty traffic with high-volatility endpoints and strict freshness.",
+        "max_steps": 10,
+        "memory_budget_mb": 260.0,
+        "endpoints": {
+            "search": {
+                "base_rps": 75.0,
+                "miss_penalty_ms": 145.0,
+                "payload_kb": 6.0,
+                "volatility": 0.25,
+                "freshness_sla_seconds": 80,
+            },
+            "catalog": {
+                "base_rps": 50.0,
+                "miss_penalty_ms": 95.0,
+                "payload_kb": 10.0,
+                "volatility": 0.2,
+                "freshness_sla_seconds": 200,
+            },
+            "offers": {
+                "base_rps": 40.0,
+                "miss_penalty_ms": 190.0,
+                "payload_kb": 5.0,
+                "volatility": 0.6,
+                "freshness_sla_seconds": 20,
+            },
+            "inventory": {
+                "base_rps": 45.0,
+                "miss_penalty_ms": 165.0,
+                "payload_kb": 7.0,
+                "volatility": 0.65,
+                "freshness_sla_seconds": 12,
+            },
+            "pricing": {
+                "base_rps": 30.0,
+                "miss_penalty_ms": 200.0,
+                "payload_kb": 4.0,
+                "volatility": 0.75,
+                "freshness_sla_seconds": 8,
+            },
+            "reviews": {
+                "base_rps": 16.0,
+                "miss_penalty_ms": 120.0,
+                "payload_kb": 12.0,
+                "volatility": 0.22,
+                "freshness_sla_seconds": 480,
+            },
+            "realtime_stock": {
+                "base_rps": 35.0,
+                "miss_penalty_ms": 210.0,
+                "payload_kb": 3.0,
+                "volatility": 0.9,
+                "freshness_sla_seconds": 5,
+            },
+        },
+        "traffic_windows": [
+            {"search": 1.0, "catalog": 1.0, "offers": 1.1, "inventory": 1.0, "pricing": 1.05, "reviews": 1.0, "realtime_stock": 1.1},
+            {"search": 1.2, "catalog": 1.05, "offers": 1.3, "inventory": 1.25, "pricing": 1.2, "reviews": 0.95, "realtime_stock": 1.4},
+            {"search": 1.5, "catalog": 1.1, "offers": 1.7, "inventory": 1.6, "pricing": 1.5, "reviews": 0.9, "realtime_stock": 1.9},
+            {"search": 0.95, "catalog": 1.0, "offers": 0.85, "inventory": 0.9, "pricing": 0.9, "reviews": 1.05, "realtime_stock": 0.8},
+            {"search": 1.35, "catalog": 1.15, "offers": 1.5, "inventory": 1.4, "pricing": 1.45, "reviews": 1.0, "realtime_stock": 1.7},
+            {"search": 1.1, "catalog": 1.0, "offers": 1.2, "inventory": 1.15, "pricing": 1.25, "reviews": 1.05, "realtime_stock": 1.3},
+            {"search": 0.85, "catalog": 0.95, "offers": 0.8, "inventory": 0.85, "pricing": 0.9, "reviews": 1.1, "realtime_stock": 0.75},
+            {"search": 1.4, "catalog": 1.2, "offers": 1.6, "inventory": 1.45, "pricing": 1.5, "reviews": 0.95, "realtime_stock": 1.8},
+            {"search": 1.05, "catalog": 1.0, "offers": 1.05, "inventory": 1.0, "pricing": 1.1, "reviews": 1.1, "realtime_stock": 1.2},
+            {"search": 0.9, "catalog": 0.9, "offers": 0.9, "inventory": 0.9, "pricing": 0.95, "reviews": 1.15, "realtime_stock": 0.85},
+        ],
+    },
+}
+
+TASK_NAMES = list(TASKS.keys())

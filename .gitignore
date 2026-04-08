@@ -1,0 +1,23 @@
+*txt
+
+# Python cache artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+
+# Packaging/build artifacts
+*.egg-info/
+dist/
+build/
+
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+
+# Local secrets
+.env
+.env.*
