@@ -1,3 +1,16 @@
+---
+title: OpenCachePolicy Environment Server
+emoji: "⚡"
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+app_port: 8000
+base_path: /web
+tags:
+    - openenv
+---
+
 # OpenCachePolicy
 
 [![Hugging Face Space](https://img.shields.io/badge/Hugging%20Face-Live%20Space-yellow?logo=huggingface&logoColor=black)](https://huggingface.co/spaces/tester248/open-cache-policy)
