@@ -53,6 +53,12 @@ app = create_app(
 )
 
 
+@app.get("/")
+def root_status():
+    """Simple root status endpoint for deployment pings."""
+    return {"status": "ok", "environment": "open_cache_policy"}
+
+
 def main():
     """
     Entry point for direct execution via uv run or python -m.

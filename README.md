@@ -1,112 +1,128 @@
----
-title: OpenCachePolicy Environment Server
-emoji: ⚡
-colorFrom: yellow
-colorTo: blue
-sdk: docker
-pinned: false
-app_port: 8000
-base_path: /web
-tags:
-  - openenv
----
-
 # OpenCachePolicy
 
-OpenCachePolicy is an OpenEnv benchmark for API cache-policy optimization.
-The agent controls endpoint TTL values and evictions to improve latency while
-staying within freshness SLAs and memory budget.
+[![Hugging Face Space](https://img.shields.io/badge/Hugging%20Face-Live%20Space-yellow?logo=huggingface&logoColor=black)](https://huggingface.co/spaces/tester248/open-cache-policy)
 
-## Why This Environment
+OpenCachePolicy is an OpenEnv environment for API cache optimization in realistic production-style conditions.
+Agents must set endpoint TTLs and cache evictions to improve latency while protecting freshness and respecting memory budgets.
 
-Caching policy is a real production control problem with direct cost and
-reliability impact. The task requires balancing three competing objectives:
+## The need
 
-1. Latency reduction from higher cache hit rates.
-2. Freshness safety for volatile endpoints.
-3. Memory efficiency under constrained cache budget.
+OpenCachePolicy models a real decision problem backend teams face daily:
 
-## Task Set
+1. Reduce p95 latency with smart cache usage.
+2. Avoid stale responses on volatile endpoints.
+3. Stay under finite cache memory.
+4. Minimize policy churn that can destabilize systems.
 
-1. task_easy: Stable traffic and lenient freshness windows.
-2. task_medium: Mixed volatility plus memory pressure.
-3. task_hard: Bursty traffic and strict freshness on critical endpoints.
+The environment is deterministic and reproducible, making it suitable for fair model comparison.
 
-Each task has deterministic fixture windows and deterministic scoring.
+## Environment Design
 
-## Action Space
+### Tasks
 
-The agent emits JSON actions:
+1. `task_easy`: Stable traffic and lenient freshness windows.
+2. `task_medium`: Mixed volatility with tighter memory pressure.
+3. `task_hard`: Bursty traffic with strict freshness constraints for critical services.
 
-1. policy_updates: list of endpoint TTL updates.
-2. evict_endpoints: list of endpoints to evict immediately.
+### Action Space
 
-TTL choices are discrete buckets:
-0, 5, 30, 120, 600 seconds.
+Actions are JSON with two controls:
 
-## Observation Space
+1. `policy_updates`: endpoint TTL updates.
+2. `evict_endpoints`: immediate cache evictions.
 
-Each step returns:
+Allowed TTL buckets are discrete and deterministic:
 
-1. Aggregate metrics: weighted latency, baseline latency, stale ratio,
-   memory used, memory budget.
-2. Endpoint metrics: request rate, miss penalty, volatility,
-   freshness SLA, current TTL, hit-rate estimate, staleness risk,
-   estimated memory footprint.
+1. `0`
+2. `5`
+3. `30`
+4. `120`
+5. `600`
 
-## Reward Design
+### Observation Space
 
-Step reward is bounded to 0.01..0.99 and combines:
+Each step returns both aggregate and endpoint-level signals:
 
-1. Latency gain ratio (weight 0.50).
-2. Freshness health from stale ratio (weight 0.35).
-3. Memory health from overflow ratio (weight 0.15).
-4. Churn penalty for excessive policy flips and invalid TTL updates.
+1. Aggregate: weighted latency, baseline latency, stale ratio, memory used, memory budget.
+2. Per endpoint: request rate, miss penalty, volatility, freshness SLA, current TTL, estimated hit rate, staleness risk, memory footprint.
 
-Episode score is the mean of step rewards.
+### Reward Function
+
+Per-step reward is bounded to `(0.01, 0.99)` and combines:
+
+1. Latency gain ratio (0.50).
+2. Freshness health (0.35).
+3. Memory health (0.15).
+4. Churn penalties for redundant or unstable policy flips.
+
+Final task score is mean step reward.
 
 ## Quick Start
 
-1. Install dependencies.
+Install dependencies:
 
+```bash
 uv sync
+```
 
-2. Run server locally.
+Run local server:
 
+```bash
 uv run server
+```
 
-3. Run baseline inference.
+Run baseline inference:
 
+```bash
 uv run inference.py
+```
 
-4. Validate and deploy.
+Validate and deploy:
 
+```bash
 openenv validate
-openenv push --repo-id your-username/open-cache-policy
+openenv push --repo-id tester248/open-cache-policy
+```
 
-## Required Inference Environment Variables
+## Required Environment Variables
 
-1. API_BASE_URL
-2. MODEL_NAME
-3. HF_TOKEN
-4. Optional: ENV_BASE_URL (defaults to http://localhost:8000)
+1. `HF_TOKEN`
+2. `API_BASE_URL`
+3. `MODEL_NAME`
 
-## Output Logging Contract
+Optional:
 
-The baseline runner emits strict structured logs:
+1. `ENV_BASE_URL` (defaults to `http://localhost:8000`)
 
-1. [START] task=... env=... model=...
-2. [STEP] step=... action=... reward=... done=... error=...
-3. [END] success=... steps=... score=... rewards=...
+## Logging Contract
 
-## Project Layout
+`inference.py` emits structured logs required by evaluation:
 
-open_cache_policy/
-  models.py
-  tasks.py
-  client.py
-  inference.py
-  openenv.yaml
-  server/
-    app.py
-    open_cache_policy_environment.py
+1. `[START]`
+2. `[STEP]`
+3. `[END]`
+
+## Baseline Scores
+
+Recent local baseline run with `Qwen/Qwen2.5-72B-Instruct`:
+
+1. `task_easy`: `0.730`
+2. `task_medium`: `0.713`
+3. `task_hard`: `0.636`
+4. Average: `0.693`
+
+These scores are deterministic for fixed task fixtures and policy logic.
+
+## Repository Layout
+
+```text
+.
+├── client.py
+├── inference.py
+├── models.py
+├── openenv.yaml
+├── tasks.py
+└── server
+    ├── app.py
+    └── open_cache_policy_environment.py
+```
