@@ -20,6 +20,18 @@ tags:
 OpenCachePolicy is a real-world RL benchmark where an agent operates cache policy like a backend platform engineer.
 At each step, the agent must tune endpoint TTLs and eviction choices to balance latency, freshness, and memory.
 
+## What This Environment Does
+
+OpenCachePolicy simulates a practical backend decision loop: how to cache API responses without hurting data quality.
+The agent continuously adjusts cache TTL and evictions for multiple endpoints while traffic changes over time.
+The environment then scores policy quality using three production-relevant outcomes:
+
+1. Faster response behavior.
+2. Lower stale-response risk.
+3. Controlled memory usage.
+
+In short, it evaluates whether an agent can make cache-policy tradeoffs that resemble real platform operations.
+
 ## Why This Matters
 
 OpenCachePolicy models a real decision problem backend teams face daily:
@@ -117,20 +129,31 @@ Recent baseline run using `Qwen/Qwen2.5-72B-Instruct`:
 | `task_hard` | `0.636` |
 | **Average** | **`0.693`** |
 
+### Live Space Repeatability (3 Runs)
+
+Source: direct runs against deployed Space endpoint `tester248/open-cache-policy`.
+
+| Task | Run 1 | Run 2 | Run 3 | Mean | Range |
+|---|---:|---:|---:|---:|---:|
+| `task_easy` | `0.730` | `0.802` | `0.802` | `0.778` | `0.072` |
+| `task_medium` | `0.703` | `0.670` | `0.744` | `0.706` | `0.074` |
+| `task_hard` | `0.634` | `0.649` | `0.623` | `0.635` | `0.026` |
+| **Overall Mean** |  |  |  | **`0.706`** |  |
+
 ### Result Visualization
 
 ```text
-task_easy   0.730 |█████████████████████████████
-task_medium 0.713 |████████████████████████████
-task_hard   0.636 |█████████████████████████
-average     0.693 |███████████████████████████
+task_easy   0.778 |███████████████████████████████
+task_medium 0.706 |████████████████████████████
+task_hard   0.635 |█████████████████████████
+overall     0.706 |████████████████████████████
 ```
 
-Interpretation:
+Notes:
 
-1. Strong consistency on easy and medium.
-2. Hard remains meaningfully challenging while still above success threshold.
-3. Score spread demonstrates non-trivial difficulty progression.
+1. All 9 task runs completed successfully.
+2. `task_hard` remained above the 0.60 success threshold in all three runs.
+3. Score variance is controlled and consistent with stochastic model behavior.
 
 ## Quick Start
 
@@ -183,6 +206,35 @@ Optional:
 1. `[START]`
 2. `[STEP]`
 3. `[END]`
+
+## Playground Input Guide
+
+In the Hugging Face Playground, the two action fields map directly to your step action:
+
+1. `Policy Updates`: list of endpoint TTL changes.
+2. `Evict Endpoints`: list of endpoint IDs to clear immediately.
+
+Use JSON arrays in both fields.
+
+Example `Policy Updates` value:
+
+```json
+[
+    {"endpoint_id": "search", "ttl_seconds": 120},
+    {"endpoint_id": "realtime_stock", "ttl_seconds": 5}
+]
+```
+
+Example `Evict Endpoints` value:
+
+```json
+["offers", "reviews"]
+```
+
+No-op step example:
+
+1. `Policy Updates`: `[]`
+2. `Evict Endpoints`: `[]`
 
 Sample output format:
 
