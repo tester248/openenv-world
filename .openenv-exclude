@@ -1,5 +1,5 @@
 # Exclude non-deployment artifacts from openenv push uploads
-*.txt
+docs/
 
 # Local/dev artifacts
 .git/
